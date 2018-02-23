@@ -8,14 +8,38 @@
 #include"map.h"
 #include"snake.h"
 #include"food.h"
+#include<memory>
 
+void Controller::Game()
+{
+	Start();  ///开始动画
+	while (true)  ///一级循环
+	{
+		Select();
+		DrawGame();
+		int tmp = PlayGame();
+		if (tmp == 1)
+		{
+			system("cls");
+			continue;
+		}
+
+		else if (tmp == 2)
+			break;
+		else
+			break;
+
+	}
+
+}
 void Controller::Start()  //开始界面
 {
-	SetWindowSize(41, 32); /// 窗口大小
-	SetColor(2);///动画颜色
-	StartInterface *start = new StartInterface(); ///为什么要用动态分配内存？
-	start->Action(); /// k开始动画
-	delete start; 
+	SetWindowSize(41, 32); // 窗口大小
+	SetColor(2);//动画颜色
+	//StartInterface *start = new StartInterface(); 
+	std::shared_ptr<StartInterface> start(new StartInterface());  //动态指针分配资源。
+	start->Action(); // k开始动画
+//	delete start; 
 
 	//设置光标位置，输出提示语
 	SetCursorPosition(13, 26);
@@ -31,7 +55,7 @@ void Controller::Select()
 	SetCursorPosition(13, 26);
 	std::cout << "                          ";
 	SetCursorPosition(13, 27);
-	std::cout << "                          ";
+	std::cout << "                          "; //去掉上一个界面中的 press any key..的提示语
 	SetCursorPosition(6, 21);
 	std::cout << "请选择游戏难度";
 	SetCursorPosition(6, 22);
@@ -175,14 +199,15 @@ void Controller::DrawGame()
 
 	///绘制地图
 	SetColor(3);
-	Map *init_map = new Map();
+	//Map *init_map = new Map();
+	std::shared_ptr<Map> init_map(new Map()); //动态指针
 	init_map->PrintInitmap();
-	delete init_map;
+	//delete init_map;
 
 	///绘制侧边栏
 	SetColor(3);
 	SetCursorPosition(33, 1);
-	std::cout << "Greedy Snake";
+	std::cout << "Liu's Snake";
 	SetCursorPosition(34, 2);
 	std::cout << "贪吃蛇";
 	SetCursorPosition(31, 4);
@@ -206,6 +231,7 @@ void Controller::DrawGame()
 	default:
 		break;
 	}
+
 	SetCursorPosition(31, 7);
 	std::cout << "得分:";
 	SetCursorPosition(37, 8);
@@ -224,7 +250,7 @@ void Controller::UpdateScore(const int& tmp)
 
 void Controller::RewriteScore()
 {
-	///为了保证分数尾部对齐。将最大分数设为6位，计算当前分数位数，将剩余位数用空格补全。再输出分数
+	//为了保证分数尾部对齐。将最大分数设为6位，计算当前分数位数，将剩余位数用空格补全。再输出分数
 	SetCursorPosition(37, 8);
 	SetColor(11);
 	int bit = 0;
@@ -336,28 +362,7 @@ int Controller::Menu() ///选择菜单
 	return tmp_key; ///返回所指项目，让调用它的函数来处理。。
 }
 
-void Controller::Game()
-{
-	Start();  ///开始动画
-	while (true)  ///一级循环？
-	{
-		Select();
-		DrawGame();
-		int tmp = PlayGame();
-		if (tmp == 1)
-		{
-			system("cls");
-			continue;
-		}
 
-		else if (tmp == 2)
-			break;
-		else
-			break;
-
-	}
-
-}
 
 int Controller::GameOver()
 {
@@ -475,8 +480,10 @@ int Controller::GameOver()
 int Controller::PlayGame()  ///游戏二级循环。(内部循环)
 {
 	////初始化蛇和食物
-	Snake *csnake = new Snake();
-	Food *cfood = new Food();
+	//Snake *csnake = new Snake();
+	//Food *cfood = new Food();
+	std::shared_ptr<Snake> csnake(new Snake());
+	std::shared_ptr<Food> cfood(new Food());
 	SetColor(6);
 	csnake->InitSnake();
 	srand((unsigned)time(NULL)); ///随机数种子。。 若不设置，食物出现的位置will固定..
@@ -486,12 +493,12 @@ int Controller::PlayGame()  ///游戏二级循环。(内部循环)
 	while (csnake->OverEdge() && csnake->HitItself()) ///是否撞墙 或者撞到自己
 	{
 		///游戏中的选择菜单
-		if (!csnake->ChangeDirection())
+		if (!csnake->ChangeDirection()) //如果按下ESC，显示菜单。
 		{
-			int tmp = Menu();  ///绘制菜单
+			int tmp = Menu();  //绘制菜单
 			switch (tmp)
 			{
-			case 1:  ///继续游戏
+			case 1:  //继续游戏
 				SetCursorPosition(32, 19);
 				std::cout << "        ";
 				SetCursorPosition(34, 21);
@@ -501,13 +508,13 @@ int Controller::PlayGame()  ///游戏二级循环。(内部循环)
 				SetCursorPosition(34, 25);
 				std::cout << "        ";
 				break;
-			case 2:  ///重新开始
-				delete csnake;
-				delete cfood;
-				return 1;  ///返回1 表示重新开始
+			case 2:  //重新开始
+				//delete csnake;
+				//delete cfood;
+				return 1;  //返回1 表示重新开始
 			case 3:
-				delete csnake;
-				delete cfood;
+				//delete csnake;
+				//delete cfood;
 				return 2; //返回2 表示退出游戏
 			default:
 				break;
@@ -523,7 +530,7 @@ int Controller::PlayGame()  ///游戏二级循环。(内部循环)
 			cfood->DrawFood(*csnake);
 		}
 		else {
-			csnake->NormalMove();
+			csnake->NormalMove(); //移动一格
 		}
 
 		if (csnake->GetBigFood(*cfood))
@@ -541,8 +548,8 @@ int Controller::PlayGame()  ///游戏二级循环。(内部循环)
 	}
 
 	///蛇死亡
-	delete csnake;
-	delete cfood;
+	//delete csnake;
+	//delete cfood;
 	int tmp = GameOver();
 	switch (tmp)
 	{

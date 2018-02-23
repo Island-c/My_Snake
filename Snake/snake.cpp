@@ -33,13 +33,14 @@ void Snake::Move()  ///蛇的尾部增加一块。 根据蛇的移动方向确定坐标；
 
 	}
 	SetColor(14);
-
+	snake.back().PrintCircular(); //输出新增的点，清除首个点，因为其他位置不变，所以没有必要再全部print一次。
+	// 吃到食物之后长度要+1，就不用再删除队首的点了。,
 }
 
 void Snake::NormalMove()  ///先在尾部加一个。 再给头部减一个。
 {
 	Move(); //按照当前方向更改deque中的下一个位置，初始化。
-	snake.back().PrintCircular(); //输出新增的点，清除首个点，因为其他位置不变，所以没有必要再全部print一次。
+	
 	snake.front().Clear(); 
 	snake.pop_front();
 }

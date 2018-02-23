@@ -15,8 +15,8 @@ public:
 	void Game();
 	int GameOver();
 private:
-	int speed; ////速度
-	int key;   ////难度
+	int speed; //速度
+	int key;   //难度
 	int score;
 
 

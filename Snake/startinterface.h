@@ -14,7 +14,8 @@ private:
 public:
 	StartInterface():speed(35)
 	{
-		startsnake.emplace_back(Point(0, 14));//Éß
+		//蛇
+		startsnake.emplace_back(Point(0, 13));//Éß
 		startsnake.emplace_back(Point(1, 14));
 		startsnake.emplace_back(Point(2, 15));
 		startsnake.emplace_back(Point(3, 16));
@@ -24,7 +25,7 @@ public:
 		startsnake.emplace_back(Point(7, 16));
 		startsnake.emplace_back(Point(8, 15));
 		startsnake.emplace_back(Point(9, 14));
-
+		//字
 		textsnake.emplace_back(Point(-26, 14));//S
 		textsnake.emplace_back(Point(-25, 14));
 		textsnake.emplace_back(Point(-27, 15));
