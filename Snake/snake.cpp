@@ -2,6 +2,7 @@
 #include<conio.h>
 #include"tools.h"
 #include<iostream>
+#include<memory>
 
 void Snake::InitSnake() {
 	for (auto& point : snake)
@@ -15,16 +16,16 @@ void Snake::Move()  ///蛇的尾部增加一块。 根据蛇的移动方向确定坐标；
 {
 	switch (direction)
 	{
-	case Direction::UP:
+	case Direction::UP :
 		snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() - 1));
 		break;
-	case Direction::DOWN:
+	case Direction::DOWN :
 		snake.emplace_back(Point(snake.back().GetX(), snake.back().GetY() + 1));
 		break;
-	case Direction::LEFT:
+	case Direction::LEFT :
 		snake.emplace_back(Point(snake.back().GetX() - 1, snake.back().GetY() ));
 		break;
-	case Direction::RIGHT:
+	case Direction::RIGHT :
 		snake.emplace_back(Point(snake.back().GetX() + 1, snake.back().GetY()));
 		break;
 	default:
@@ -32,16 +33,17 @@ void Snake::Move()  ///蛇的尾部增加一块。 根据蛇的移动方向确定坐标；
 
 	}
 	SetColor(14);
-	snake.back().PrintCircular();
+
 }
 
 void Snake::NormalMove()  ///先在尾部加一个。 再给头部减一个。
 {
-	Move();
-	snake.front().Clear();   ///感觉应该是 clear back
+	Move(); //按照当前方向更改deque中的下一个位置，初始化。
+	snake.back().PrintCircular(); //输出新增的点，清除首个点，因为其他位置不变，所以没有必要再全部print一次。
+	snake.front().Clear(); 
 	snake.pop_front();
 }
-bool Snake::OverEdge()
+bool Snake::OverEdge() //反向判断最为致命！
 {
 	return snake.back().GetX() < 30 &&
 		snake.back().GetY() < 30 &&
@@ -53,13 +55,18 @@ bool Snake::OverEdge()
 bool Snake::HitItself()
 {
 	std::deque<Point> ::size_type cnt = 1;
-	Point *head = new Point(snake.back().GetX(), snake.back().GetY()); ///蛇的头部坐标。
+	//Point *head = new Point(snake.back().GetX(), snake.back().GetY()); ///蛇的头部坐标。
+	//std::shared_ptr<Point> head(new Point(snake.back().GetX(), snake.back().GetY() )); //使用智能指针可以更好的控制资源。
+	std::shared_ptr<Point> head = std::make_shared<Point>(snake.back().GetX(), snake.back().GetY()); //智能指针使用make_shared而不是new
+	//Point head = Point(snake.back().GetX(), snake.back().GetY()); //也可以不使用指针，代码块执行完后，也会释放head占用的空间。但如果遇到异常，则OVER
+	
 	for (auto& point : snake)
 	{
 		if (!(point == *head))	++cnt;
-		else break;
+		//if (!(point == head))	++cnt;
+			else break;
 	}
-	delete head;
+	//delete head;
 	if (cnt == snake.size())
 		return true;
 	else return false;
@@ -70,14 +77,14 @@ bool Snake::HitItself()
 bool Snake::ChangeDirection()
 {
 	char ch;
-	if (_kbhit())
+	if (_kbhit()) //按键按下
 	{
 		ch = _getch();
 		switch (ch)
 		{
 		case -32:
-			ch = _getch();
-			switch (ch)
+			ch = _getch();  //方向键的ASCII码要读两次。
+			switch (ch) 
 			{
 			case 72:
 				if (direction != Direction::DOWN)
